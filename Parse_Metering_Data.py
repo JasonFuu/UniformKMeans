@@ -42,7 +42,7 @@ class MeteringSpikes:
     """Finds outliers (15% higher than average) from a meter's energy usage list"""
     def find_outlier(self, differences, date_df):
         average = np.mean(differences)
-        spike_limit = 1.15 * average
+        spike_limit = 2.55 * average
         outlier_list = []
 
         for index in range(len(differences)):

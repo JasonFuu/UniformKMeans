@@ -15,7 +15,7 @@ class K_Means_Plus_Plus:
         self.id_list = self.create_id_list()
         self.intensity_list = self.normalize_list(self.parse_intensities())
         self.frequency_list = self.normalize_list(self.parse_frequencies())
-        self.intialize_centroid()
+        self.initialize_centroid()
         self.centroid_count = 0
 
     """Creates a list of all meter IDs from the meter dictionary"""
@@ -68,9 +68,11 @@ class K_Means_Plus_Plus:
         index = random.randint(0, len(self.id_list)-1)
         self.centroid_list.append([self.id_list[index], self.intensity_list[index], self.frequency_list[index]])
         self.remove_ID(index)
+        self.centroid_count += 1
 
-    """Removes ID associated with given index"""
+    """Removes ID associated with given index so it cannot be picked as a future centroid"""
     def remove_ID(self, index):
+        print(index)
         del self.id_list[index]
         del self.frequency_list[index]
         del self.intensity_list[index]
@@ -86,7 +88,7 @@ class K_Means_Plus_Plus:
         new_center_index = self.choose_weighted(distance_list)
         self.centroid_list.append([self.id_list[new_center_index], self.intensity_list[new_center_index],
                                    self.frequency_list[new_center_index]])
-        self.remove_ID(self.id_list[new_center_index])
+        self.remove_ID(new_center_index)
         self.centroid_count += 1
 
     """Finds centroid nearest to the given ID, and returns its distance"""
@@ -105,7 +107,7 @@ class K_Means_Plus_Plus:
     def choose_weighted(self, distance_list):
         distance_list = [x**2 for x in distance_list]
         weighted_list = self.weight_values(distance_list)
-        indices = [i for i in range(distance_list)]
+        indices = [i for i in range(len(distance_list))]
         return np.random.choice(indices, p = weighted_list)
 
     """Weights values from [0,1]"""
