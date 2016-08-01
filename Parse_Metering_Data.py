@@ -8,9 +8,8 @@ import numpy as np
 
 class MeteringSpikes:
 
-    def __init__(self, filename, intended_interval):
-        xlsx = pd.ExcelFile(filename)
-        self.df = pd.read_excel(xlsx, 'january1through15')
+    def __init__(self, dataframe, intended_interval):
+        self.df = dataframe
         self.intended_interval = intended_interval
 
     """Finds spikes in each meter's usage (spike is defined as energy usage 15% greater than

@@ -2,6 +2,7 @@
 input centroid value for the K-Mean variant. This variant then aggregates the meters
 into floor(n/k) +/- 1 sized clusters"""
 import datetime
+import pandas as pd
 import numpy as np
 from MeteringAnon.Parse_Metering_Data import MeteringSpikes
 from MeteringAnon.KMeansPlus import K_Means_Plus_Plus
@@ -31,7 +32,9 @@ def consolidate_centroids(x_list, y_list):
 
 """Energy usage interval for this data-set is 15 minutes"""
 initial_filename = '/Users/jason/Downloads/_january1through15.xlsx'
-metering_data = MeteringSpikes(initial_filename, 15)
+xlsx = pd.ExcelFile(initial_filename)
+dataframe = pd.read_excel(xlsx, 'january1through15')
+metering_data = MeteringSpikes(dataframe, 15)
 energy_use_dictionary = metering_data.find_all_spikes('Meter_ID', 'KW/MIN', 'time')
 k_means = K_Means_Plus_Plus(energy_use_dictionary, 20)
 

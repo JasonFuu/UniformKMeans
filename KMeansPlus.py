@@ -10,13 +10,13 @@ class K_Means_Plus_Plus:
     containing the intensity of each spike and the time when it occurred; k refers to number of clusters
     meter dict is in the format: {ID1: [spike power(in kW), datetime of spike], [spike power....], ID2... etc.}"""
     def __init__(self, meter_dictionary, k):
+        self.centroid_count = 0
         self.cluster_count = k
         self.meter_dict = meter_dictionary
         self.id_list = self.create_id_list()
         self.intensity_list = self.normalize_list(self.parse_intensities())
         self.frequency_list = self.normalize_list(self.parse_frequencies())
         self.initialize_centroid()
-        self.centroid_count = 0
 
     """Creates a list of all meter IDs from the meter dictionary"""
     def create_id_list(self):
