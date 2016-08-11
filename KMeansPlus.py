@@ -72,7 +72,6 @@ class K_Means_Plus_Plus:
 
     """Removes ID associated with given index so it cannot be picked as a future centroid"""
     def remove_ID(self, index):
-        print(index)
         del self.id_list[index]
         del self.frequency_list[index]
         del self.intensity_list[index]

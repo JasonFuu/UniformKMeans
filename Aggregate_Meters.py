@@ -13,7 +13,7 @@ class AggregatedMeters:
         self.aggregate_list = aggregate_list
 
     def aggregate(self, id_attribute, energy_attribute):
-        cumulative_usage = [0] * 1439
+        cumulative_usage = [0] * len(self.df[id_attribute])
         checked_list = []
 
         for IDs in self.df[id_attribute]:
@@ -40,7 +40,7 @@ class AggregatedMeters:
 
     def find_total_contribution(self, meter_list, id_attribute, energy_attribute, aggregate_usage):
         usage_percentages = {}
-        total_usage = sum(self.remove_outliers(aggregate_usage))
+        total_usage = sum(aggregate_usage)
 
         for IDs in self.df[id_attribute]:
 
