@@ -5,50 +5,28 @@ import math
 
 class K_Means_Plus_Plus:
 
-    """Input is list of n-dimensional points"""
-    def __init__(self, meter_dictionary, k):
+    """Input is a 2D list of n-dimensional points. Normalizes each parameter to minimize effect of outliers"""
+    def __init__(self, points_list, n, k):
         self.centroid_count = 0
+        self.dimensions = n
         self.cluster_count = k
-        self.meter_dict = meter_dictionary
-        self.id_list = self.create_id_list()
-        self.intensity_list = self.normalize_list(self.parse_intensities())
-        self.frequency_list = self.normalize_list(self.parse_frequencies())
+        self.normalized_points = self.normalize_parameters(points_list)
         self.initialize_centroid()
 
-    """Creates a list of all meter IDs from the meter dictionary"""
-    def create_id_list(self):
-        id_list = []
+    """Normalizes each of the n parameters in the initial list of points"""
+    def normalize_parameters(self, points):
+        normalized = []
 
-        for values in self.meter_dict:
-            id_list.append(values)
+        for a in range(self.dimensions):
+            appending = []
+            for point in points:
+                appending.append(point[a])
+            normalized.append(self.normalize(appending))
 
-        return id_list
-
-    """parses average spike intensities from dictionary"""""
-    def parse_intensities(self):
-        self.average_list = []
-        temp_list = []
-
-        for values in self.meter_dict:
-
-            for index in range(len(self.meter_dict[values])):
-                temp_list.append(self.meter_dict[values][index][0])
-
-            self.average_list.append(np.mean(temp_list))
-
-        return self.average_list
-
-    """parses spike frequencies from dictionary"""
-    def parse_frequencies(self):
-        freq_list = []
-
-        for values in self.meter_dict:
-            freq_list.append(len(self.meter_dict[values]))
-
-        return freq_list
+        return normalized
 
     """Normalizes values in given list to range [0, 1]"""
-    def normalize_list(self, list):
+    def normalize(self, list):
         new_list = []
         max = np.max(list)
         min = np.min(list)
@@ -62,8 +40,8 @@ class K_Means_Plus_Plus:
     [ID, spike frequency, spike intensity]"""
     def initialize_centroid(self):
         self.centroid_list = []
-        index = random.randint(0, len(self.id_list)-1)
-        self.centroid_list.append([self.id_list[index], self.intensity_list[index], self.frequency_list[index]])
+        index = random.randint(0, len(self.normalized_points)-1)
+
         self.remove_ID(index)
         self.centroid_count += 1
 
