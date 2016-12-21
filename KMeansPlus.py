@@ -1,14 +1,11 @@
-"""K-Means++ class made for two parameters (intensity and frequency) of energy spikes. Returns k centroids"""
-import datetime
+"""K-Means++ class made for multiple parameters. Returns k initial seeds to be used in Equal_Cluster_K_Means"""
 import numpy as np
 import random
 import math
 
 class K_Means_Plus_Plus:
 
-    """Input is meter dictionary from Anon_Metering_Data class(each ID corresponds to a 2d list
-    containing the intensity of each spike and the time when it occurred; k refers to number of clusters
-    meter dict is in the format: {ID1: [spike power(in kW), datetime of spike], [spike power....], ID2... etc.}"""
+    """Input is list of n-dimensional points"""
     def __init__(self, meter_dictionary, k):
         self.centroid_count = 0
         self.cluster_count = k
