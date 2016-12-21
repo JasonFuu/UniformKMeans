@@ -5,23 +5,30 @@ import math
 
 class K_Means_Plus_Plus:
 
-    """Input is a 2D list of n-dimensional points. Normalizes each parameter to minimize effect of outliers"""
+    """Input is a 2D list containing n lists representing each parameter of the n-dimensional points. Thus, point 0
+     is represented by the 0th element of each list, etc. Normalizes each parameter to minimize effect of outliers"""
     def __init__(self, points_list, n, k):
         self.centroid_count = 0
+        self.point_count = len(points_list[0])
         self.dimensions = n
         self.cluster_count = k
         self.normalized_points = self.normalize_parameters(points_list)
-        self.initialize_centroid()
+        self.initialize_random_centroid()
+        self.initialize_other_centroids()
 
-    """Normalizes each of the n parameters in the initial list of points"""
+    """Normalizes each of the n parameters in the initial list of points. Returns list of points in standard format:
+    (x1, x2, ..., xn)"""
     def normalize_parameters(self, points):
-        normalized = []
+        l = []
+        for parameters in points:
+            l.append(self.normalize(parameters))
 
-        for a in range(self.dimensions):
-            appending = []
-            for point in points:
-                appending.append(point[a])
-            normalized.append(self.normalize(appending))
+        normalized = []
+        for a in range(self.point_count):
+            new_point = []
+            for b in range(self.dimensions):
+                new_point.append(l[b][a])
+            normalized.append(new_point)
 
         return normalized
 
@@ -36,42 +43,47 @@ class K_Means_Plus_Plus:
 
         return new_list
 
-    """Picks a random point to serve as the first centroid. Centroids are recorded in list form:
-    [ID, spike frequency, spike intensity]"""
-    def initialize_centroid(self):
+    """Picks a random point to serve as the first centroid"""
+    def initialize_random_centroid(self):
         self.centroid_list = []
         index = random.randint(0, len(self.normalized_points)-1)
 
-        self.remove_ID(index)
-        self.centroid_count += 1
+        self.centroid_list.append(self.remove_point(index))
+        self.centroid_count = 1
 
-    """Removes ID associated with given index so it cannot be picked as a future centroid"""
-    def remove_ID(self, index):
-        del self.id_list[index]
-        del self.frequency_list[index]
-        del self.intensity_list[index]
+    """Removes point associated with given index so it cannot be picked as a future centroid.
+    Returns list containing coordinates of newly removed centroid"""
+    def remove_point(self, index):
+        new_centroid = self.normalized_points[index]
+        del self.normalized_points[index]
+
+        return new_centroid
+
+    """Finds the other k-1 centroids from the remaining lists of points"""
+    def initialize_other_centroids(self):
+        while not self.is_finished():
+            distances = self.find_smallest_distances()
+            chosen_index = self.choose_weighted(distances)
+            self.centroid_list.append(self.remove_point(chosen_index))
+            self.centroid_count += 1
+
 
     """Calculates distance from each point to its nearest cluster center. Then chooses new
     center based on the weighted probability of these distances"""
-    def find_new_center(self):
+    def find_smallest_distances(self):
         distance_list = []
 
-        for index in range(len(self.id_list)):
-            distance_list.append(self.find_nearest_centroid(index))
+        for point in self.normalized_points:
+            distance_list.append(self.find_nearest_centroid(point))
 
-        new_center_index = self.choose_weighted(distance_list)
-        self.centroid_list.append([self.id_list[new_center_index], self.intensity_list[new_center_index],
-                                   self.frequency_list[new_center_index]])
-        self.remove_ID(new_center_index)
-        self.centroid_count += 1
+        return distance_list
 
-    """Finds centroid nearest to the given ID, and returns its distance"""
-    def find_nearest_centroid(self, index):
+    """Finds centroid nearest to the given point, and returns its distance"""
+    def find_nearest_centroid(self, point):
         min_distance = math.inf
 
         for values in self.centroid_list:
-            distance = self.euclidean_distance(self.intensity_list[index], self.frequency_list[index],
-                                               values[1], values[2])
+            distance = self.euclidean_distance(values, point)
             if distance < min_distance:
                 min_distance = distance
 
@@ -89,9 +101,13 @@ class K_Means_Plus_Plus:
         sum = np.sum(list)
         return [x/sum for x in list]
 
-    """computes 2d euclidean distance between (x1, y1) and (x2, y2)"""
-    def euclidean_distance(self, x1, y1, x2, y2):
-        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    """computes N-d euclidean distance between two points represented as lists:
+     (x1, x2, ..., xn) and (y1, y2, ..., yn)"""
+    def euclidean_distance(self, point1, point2):
+        point1 = np.asarray(point1)
+        point2 = np.asarray(point2)
+
+        return np.linalg.norm(point2-point1)
 
     """Checks to see if final condition has been satisfied (when K centroids have been created)"""
     def is_finished(self):
