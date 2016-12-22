@@ -7,46 +7,46 @@ class K_Means_Plus_Plus:
 
     """Input is a 2D list containing n lists representing each parameter of the n-dimensional points. Thus, point 0
      is represented by the 0th element of each list, etc. Normalizes each parameter to minimize effect of outliers"""
-    def __init__(self, points_list, n, k):
+    def __init__(self, points_list, k):
         self.centroid_count = 0
-        self.point_count = len(points_list[0])
-        self.dimensions = n
+        self.point_count = len(points_list)
         self.cluster_count = k
-        self.normalized_points = self.normalize_parameters(points_list)
+        # self.normalized_points = self.normalize_parameters(points_list)
+        self.points_list = points_list
         self.initialize_random_centroid()
         self.initialize_other_centroids()
 
-    """Normalizes each of the n parameters in the initial list of points. Returns list of points in standard format:
-    (x1, x2, ..., xn)"""
-    def normalize_parameters(self, points):
-        l = []
-        for parameters in points:
-            l.append(self.normalize(parameters))
-
-        normalized = []
-        for a in range(self.point_count):
-            new_point = []
-            for b in range(self.dimensions):
-                new_point.append(l[b][a])
-            normalized.append(new_point)
-
-        return normalized
-
-    """Normalizes values in given list to range [0, 1]"""
-    def normalize(self, list):
-        new_list = []
-        max = np.max(list)
-        min = np.min(list)
-
-        for values in list:
-            new_list.append((values - min)/(max-min))
-
-        return new_list
+    # """Normalizes each of the n parameters in the initial list of points. Returns list of points in standard format:
+    # (x1, x2, ..., xn)"""
+    # def normalize_parameters(self, points):
+    #     l = []
+    #     for parameters in points:
+    #         l.append(self.normalize(parameters))
+    #
+    #     normalized = []
+    #     for a in range(self.point_count):
+    #         new_point = []
+    #         for b in range(self.dimensions):
+    #             new_point.append(l[b][a])
+    #         normalized.append(new_point)
+    #
+    #     return normalized
+    #
+    # """Normalizes values in given list to range [0, 1]"""
+    # def normalize(self, list):
+    #     new_list = []
+    #     max = np.max(list)
+    #     min = np.min(list)
+    #
+    #     for values in list:
+    #         new_list.append((values - min)/(max-min))
+    #
+    #     return new_list
 
     """Picks a random point to serve as the first centroid"""
     def initialize_random_centroid(self):
         self.centroid_list = []
-        index = random.randint(0, len(self.normalized_points)-1)
+        index = random.randint(0, len(self.points_list)-1)
 
         self.centroid_list.append(self.remove_point(index))
         self.centroid_count = 1
@@ -54,8 +54,8 @@ class K_Means_Plus_Plus:
     """Removes point associated with given index so it cannot be picked as a future centroid.
     Returns list containing coordinates of newly removed centroid"""
     def remove_point(self, index):
-        new_centroid = self.normalized_points[index]
-        del self.normalized_points[index]
+        new_centroid = self.points_list[index]
+        del self.points_list[index]
 
         return new_centroid
 
@@ -73,7 +73,7 @@ class K_Means_Plus_Plus:
     def find_smallest_distances(self):
         distance_list = []
 
-        for point in self.normalized_points:
+        for point in self.points_list:
             distance_list.append(self.find_nearest_centroid(point))
 
         return distance_list
