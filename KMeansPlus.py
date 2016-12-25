@@ -10,7 +10,7 @@ class K_Means_Plus_Plus:
         self.centroid_count = 0
         self.point_count = len(points_list)
         self.cluster_count = k
-        self.points_list = points_list
+        self.points_list = list(points_list)
         self.initialize_random_centroid()
         self.initialize_other_centroids()
 
@@ -91,3 +91,4 @@ class K_Means_Plus_Plus:
     """Returns final centroid values"""
     def final_centroids(self):
         return self.centroid_list
+

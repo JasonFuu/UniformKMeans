@@ -1,6 +1,6 @@
 """Test client for KMeans++ and Equal Cluster K-Means"""
 from KMeansPlus import K_Means_Plus_Plus
-from KMeansPlus import Equal_K_Means
+from Equal_Cluster_K_Means import Equal_K_Means
 import matplotlib.pyplot as plt
 import random
 
@@ -43,9 +43,9 @@ def main():
         xs.append(a)
         ys.append(b)
         points.append([a, b])
-
-    test = K_Means_Plus_Plus(points, 7)
+    test = K_Means_Plus_Plus(points, 6)
     centroids = test.final_centroids()
-    nexttest = Equal_K_Means(points, centroids, 7, 50)
+    nexttest = Equal_K_Means(points, centroids, 6, 50)
     print(nexttest.final_clusters())
+
 main()
