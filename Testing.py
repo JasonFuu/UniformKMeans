@@ -37,15 +37,15 @@ def main():
     xs = []
     ys = []
 
-    for a in range(50):
+    for a in range(80):
         a = 100 * random.random()
         b = 50 * random.random()
         xs.append(a)
         ys.append(b)
         points.append([a, b])
-    test = K_Means_Plus_Plus(points, 6)
+    test = K_Means_Plus_Plus(points, 9)
     centroids = test.final_centroids()
-    nexttest = Equal_K_Means(points, centroids, 6, 50)
-    print(nexttest.final_clusters())
+    nexttest = Equal_K_Means(points, centroids, 9, 80)
+    # print(nexttest.final_clusters())
 
 main()

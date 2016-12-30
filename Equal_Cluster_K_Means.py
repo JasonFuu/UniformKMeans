@@ -9,11 +9,18 @@ class Equal_K_Means():
     def __init__(self, points_list, seeds, k, iterations):
         self.centroids = seeds
         self.cluster_count = k
+        self.check_seeds()
         self.points_list = points_list
         self.points_count = len(points_list)
         self.cluster_size = math.floor(self.points_count/k)
         self.interations = iterations
         self.assign_initial_clusters()
+        self.compute_clusters()
+
+    """Checks if seeds are valid"""
+    def check_seeds(self):
+        if len(self.centroids) != self.cluster_count:
+            raise ValueError("Invalid seed length!")
 
     """Assigns points to initial seeds. almost_full_clusters keeps track of clusters that reach
     floor(n/k) capacity so they are not selected for point addition"""
@@ -25,18 +32,18 @@ class Equal_K_Means():
             if len(almost_full_clusters) == self.cluster_count:
                 self.overflow_clusters(j)
                 break
-            index = self.nearest_centroid(j, almost_full_clusters)
+            index = self.nearest_centroid(self.points_list[j], almost_full_clusters)
             self.clusters[index].append(self.points_list[j])
             if self.is_almost_full(index):
                 almost_full_clusters.append(index)
 
     """Finds nearest centroid to given point, denoted by its index in the points_list"""
-    def nearest_centroid(self, index, full_clusters):
+    def nearest_centroid(self, point, full_clusters):
         best_centroid = -1
         min_distance = math.inf
 
         for i in range(self.cluster_count):
-            distance = self.euclidean_distance(self.centroids[i], self.points_list[index])
+            distance = self.euclidean_distance(self.centroids[i], point)
             if distance < min_distance and i not in full_clusters:
                 best_centroid = i
                 min_distance = distance
@@ -69,6 +76,37 @@ class Equal_K_Means():
         point2 = np.asarray(point2)
 
         return np.linalg.norm(point2 - point1)
+
+    """Computes the +/- equally sized clusters. Swap proposals {point index:[current cluster, desired cluster]...}
+    """
+    def compute_clusters(self):
+        self.centroids = self.compute_new_centroids()
+        swap_proposals = {}
+
+        for i in range(self.cluster_count):
+            for j in range(len(self.clusters[i])):
+                closest_cluster = self.nearest_centroid(self.clusters[i][j])
+                if closest_cluster != i:
+                    if len(self.clusters[closest_cluster]) < len(self.clusters[i]):
+                        swap_point = self.clusters[i].pop([j])
+                        self.clusters[closest_cluster].append(swap_point)
+                    elif
+                    else:
+                        swap_proposals[]
+
+
+
+    """Finds new centroids for given clusters"""
+    def compute_new_centroids(self):
+        l = []
+
+        for i in range(self.cluster_count):
+            temp = np.asarray(self.clusters[i])
+            l.append(np.mean(temp, axis=0))
+
+        l = np.array(l).tolist()
+
+        return l
 
     """Returns cluster lists"""
     def final_clusters(self):
