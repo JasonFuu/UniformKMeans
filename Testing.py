@@ -43,9 +43,46 @@ def main():
         xs.append(a)
         ys.append(b)
         points.append([a, b])
-    test = K_Means_Plus_Plus(points, 9)
+    test = K_Means_Plus_Plus(points, 4)
     centroids = test.final_centroids()
-    nexttest = Equal_K_Means(points, centroids, 9, 80)
-    # print(nexttest.final_clusters())
+    nexttest = Equal_K_Means(points, centroids, 4)
+    clusters = nexttest.final_clusters()
+    centroids = nexttest.final_centroids()
+
+    group0x = []
+    group0y = []
+    group1x = []
+    group1y = []
+    group2x = []
+    group2y = []
+    group3x = []
+    group3y = []
+    centroidsx = []
+    centroidsy = []
+
+    for points in clusters[0]:
+        group0x.append(points[0])
+        group0y.append(points[1])
+    for points in clusters[1]:
+        group1x.append(points[0])
+        group1y.append(points[1])
+    for points in clusters[2]:
+        group2x.append(points[0])
+        group2y.append(points[1])
+    for points in clusters[3]:
+        group3x.append(points[0])
+        group3y.append(points[1])
+    for points in centroids:
+        centroidsx.append(points[0])
+        centroidsy.append(points[1])
+
+    plt.scatter(group0x, group0y, color = 'red')
+    plt.scatter(group1x, group1y, color = 'yellow')
+    plt.scatter(group2x, group2y, color = 'blue')
+    plt.scatter(group3x, group3y, color = 'green')
+
+    plt.scatter(centroidsx, centroidsy, color = 'black')
+    plt.show()
+
 
 main()
