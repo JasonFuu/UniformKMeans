@@ -16,6 +16,7 @@ The constructor takes three arguments, ```points_list```, ```seeds```, and ```k`
 *  ```k```: Number of desired clusters
 
 Calling ```final_clusters``` and ```final_centroids``` returns the final 2d lists of clusters and centroids, respectively. These lists follow the same format as ```points_list```.
+
 The iteration count is hard-coded at 100. This should work well for most data sets, but I have not/do not know how to rigorously determine an appropriate value. 
 
 ## Example
