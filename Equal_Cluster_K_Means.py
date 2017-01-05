@@ -79,42 +79,58 @@ class Equal_K_Means():
     """Computes the +/- equally sized clusters. Swap proposals {cluster_index[points wanting to join,...]}
     closest_cluster is destination, i is current"""
     def compute_clusters(self):
-        self.swap_proposals = [[] for i in range(self.cluster_count)]
-        iteration_count = 150
+        iteration_count = 50
 
         for k in range(iteration_count):
             self.compute_new_centroids()
             self.iteration()
 
+    """Returns list of centroids closer to given point than the centroid corresponding to its current cluster"""
+    def nearest_centroids(self, point):
+        current_cluster = self.cluster_number(point)
+        current_centroids = self.centroids[current_cluster]
+        current_distance = self.euclidean_distance(current_centroids, self.points_list[point])
+        better_centroids = []
+
+        for j in range(len(self.centroids)):
+            if self.euclidean_distance(self.centroids[j], self.points_list[point]) < current_distance:
+                better_centroids.append(j)
+
+        return better_centroids
 
     """Represents one iteration of the k-means equal cluster process. For each point, finds the closest centroid.
-    If the closest centroid is not the one it belongs to, initiates a series of swaps depending on existing swap
-    proposals"""
+    If the closest centroid is not the one it belongs to, initiates a series of swaps"""
     def iteration(self):
         for i in range(len(self.points_list)):
-            closest_cluster = self.nearest_centroid(self.points_list[i], [])
+            closest_clusters = self.nearest_centroids(i)
             coords = self.find_index(i)
-            if closest_cluster != coords[0]:
-                if len(self.clusters[closest_cluster]) < len(self.clusters[coords[0]]):
-                    swap_point = self.clusters[coords[0]].pop(coords[1])
-                    self.clusters[closest_cluster].append(swap_point)
-                    self.cleanse_swaps(i)
-                elif self.check_swap(self.swap_proposals, coords[0], closest_cluster, i) != -1:
-                    point_to_swap = self.check_swap(self.swap_proposals, coords[0], closest_cluster, i)
-                    self.clusters[coords[0]].remove(i)
-                    self.clusters[closest_cluster].remove(point_to_swap)
-                    self.clusters[closest_cluster].append(i)
-                    self.clusters[coords[0]].append(point_to_swap)
-                    self.cleanse_swaps(i)
-                    self.cleanse_swaps(point_to_swap)
-                elif i not in self.swap_proposals[closest_cluster]:
-                    self.swap_proposals[closest_cluster].append(i)
+            if closest_clusters:
+                best_point = self.best_swap_candidate(i, closest_clusters)
+                if best_point != -1:
+                    swap_cluster = self.cluster_number(best_point)
 
-    """Removes argument point from the swap proposals list after a swap occurs"""
-    def cleanse_swaps(self, point):
-        for l in self.swap_proposals:
-            if point in l:
-                l.remove(point)
+                    if len(self.clusters[swap_cluster]) < len(self.clusters[coords[0]]):
+                        swap_point = self.clusters[coords[0]].pop(coords[1])
+                        self.clusters[swap_cluster].append(swap_point)
+                    else:
+                        self.clusters[coords[0]].remove(i)
+                        self.clusters[swap_cluster].remove(best_point)
+                        self.clusters[swap_cluster].append(i)
+                        self.clusters[coords[0]].append(best_point)
+
+    """Finds point in list of candidate cluster that produces greatest decrease in squared distance from
+    centroids after the swap"""
+    def best_swap_candidate(self, original_point, candidate_clusters):
+        best_point_candidate = -1
+        best_change = 0
+        for cluster_numbers in candidate_clusters:
+            for point in self.clusters[cluster_numbers]:
+                change = self.error_change(original_point, point)
+                if change > best_change:
+                    best_change = change
+                    best_point_candidate = point
+
+        return best_point_candidate
 
     """Finds index in 2d cluster list of given argument point"""
     def find_index(self, point):
@@ -123,35 +139,14 @@ class Equal_K_Means():
                 coords = [i, self.clusters[i].index(point)]
                 return coords
 
-    """Checks if there is a swap proposal from one argument cluster to another. CHANGE LATER TO ACCOMODATE """
-    def check_swap(self, swap_proposals, destination, current, original_point):
-        value = -1
-        best_change = 0
-        for points in swap_proposals[destination]:
-            if current == self.cluster_number(points) :
-                error_change = self.error_change(original_point, points)
-                if error_change > best_change:
-                    value = points
-                    best_change = error_change
-
-        return value
-
     """Calculates the decrease in error after swapping point 1 and point 2 from their clusters"""
     def error_change(self, point1, point2):
         cluster_one = self.cluster_number(point1)
         cluster_two = self.cluster_number(point2)
         pre_error = self.euclidean_distance(self.points_list[point1], self.centroids[cluster_one]) + \
                     self.euclidean_distance(self.points_list[point2], self.centroids[cluster_two])
-        intermed_one = [a * len(self.centroids[cluster_one]) for a in self.centroids[cluster_one]]
-        intermed_two = [a * len(self.centroids[cluster_two]) for a in self.centroids[cluster_two]]
-        neg_p_one = [-a for a in self.points_list[point1]]
-        neg_p_two = [-a for a in self.points_list[point2]]
-        intermed_one = [sum(n) for n in zip(*[intermed_one, self.points_list[point2], neg_p_one])]
-        intermed_two = [sum(n) for n in zip(*[intermed_two, self.points_list[point1], neg_p_two])]
-        new_centroid_one = [b / len(intermed_one) for b in intermed_one]
-        new_centroid_two = [b / len(intermed_one) for b in intermed_two]
-        new_error = self.euclidean_distance(new_centroid_one, self.points_list[point2]) + \
-            self.euclidean_distance(new_centroid_two, self.points_list[point1])
+        new_error = self.euclidean_distance(self.points_list[point1], self.centroids[cluster_two]) + \
+            self.euclidean_distance(self.points_list[point2], self.centroids[cluster_one])
         return pre_error - new_error
 
 
@@ -194,19 +189,4 @@ class Equal_K_Means():
     """Returns final centroids"""
     def final_centroids(self):
         return self.centroids
-
-    """Calculates error (in terms of squared distance) for given cluster and centroids.
-    mainly for before/after comparison purposes"""
-    def error(self, clusters, centroids):
-        error = 0
-
-        for i in range(len(clusters)):
-            for points in clusters[i]:
-                error += self.euclidean_distance(centroids[i], points)
-
-        return error
-
-    """returns swaps list for testing purposes"""
-    def swap_proposals(self):
-        return self.swap_proposals
 
