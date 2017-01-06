@@ -20,7 +20,7 @@ Calling ```final_clusters``` and ```final_centroids``` returns the final 2d list
 The iteration count is hard-coded at 100. This should work well for most data sets, but I have not/do not know how to rigorously determine an appropriate value. 
 
 ## Example
-Seeds from randomly generated data, x∈[0, 100], y∈[0, 50], n = 80, k = 4. (Centroids marked in black):
+Points from randomly generated data, x∈[0, 100], y∈[0, 50], n = 80, k = 4. (Centroids marked in black):
 ![alt text](https://github.com/JasonFuu/UniformKMeans/blob/master/Screenshots/figure_1.png)
 
 ## Notes
